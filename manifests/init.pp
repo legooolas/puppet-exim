@@ -6,17 +6,31 @@ class exim (
   $extra_hostnames         = [],
   $redirect_root_usernames = [],
   $direct_delivery         = false,
-  $packages_install        = [],
-  $packages_remove         = [],
-  # TODO : Debian/Ubuntu support to re-add via setting these...
-  $service_name            = "exim",
-  $config                  = '/etc/exim/exim.conf',
   $rewrites                = {},
   $smarthost               = undef,
   $port                    = '25',
   $dkim_disable_verify     = false,
 )
 {
+  # TODO : Better distro support rather than specifying in here explicitly...
+  case $::osfamily {
+    'RedHat': {
+      $packages_install        = [ 'exim' ],
+      $packages_remove         = [ 'sendmail', 'postfix', 'sendmail-cf' ],
+      $service_name            = 'exim',
+      $config                  = '/etc/exim/exim.conf',
+    }
+    'Debian': {
+      $packages_install        = [ 'exim4' ],
+      $packages_remove         = [ 'sendmail', 'postfix' ],
+      $service_name            = 'exim4',
+      $config                  = '/etc/exim4/exim4.conf',
+    }
+    default: {
+      fail("Module ${module_name} is not supported on ${::osfamily} yet!")
+    }
+  }
+
   # Install new before removing unwanted as many things depend on there being an MTA:
   package { $packages_install:
     ensure => present
@@ -26,10 +40,10 @@ class exim (
     ensure => absent
   }
   ->
-  templatedfile { "exim.conf":
+  file { "exim.conf":
     mode => '644', owner => root, group => root,
     path => $config,
-    module => "exim",
+    content => template('exim/exim.conf'),
   }
   ~>
   service { $service_name:
