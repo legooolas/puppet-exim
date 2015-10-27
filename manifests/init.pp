@@ -15,17 +15,17 @@ class exim (
   # TODO : Better distro support rather than specifying in here explicitly...
   case $::osfamily {
     'RedHat': {
-      $packages_install        = [ 'exim' ],
-      $packages_remove         = [ 'sendmail', 'postfix', 'sendmail-cf' ],
-      $service_name            = 'exim',
-      $config                  = '/etc/exim/exim.conf',
-    },
+      $packages_install        = [ 'exim' ]
+      $packages_remove         = [ 'sendmail', 'postfix', 'sendmail-cf' ]
+      $service_name            = 'exim'
+      $config                  = '/etc/exim/exim.conf'
+    }
     'Debian': {
-      $packages_install        = [ 'exim4' ],
-      $packages_remove         = [ 'sendmail', 'postfix' ],
-      $service_name            = 'exim4',
-      $config                  = '/etc/exim4/exim4.conf',
-    },
+      $packages_install        = [ 'exim4' ]
+      $packages_remove         = [ 'sendmail', 'postfix' ]
+      $service_name            = 'exim4'
+      $config                  = '/etc/exim4/exim4.conf'
+    }
     default: {
       fail("Module ${module_name} is not supported on ${::osfamily} yet!")
     }
